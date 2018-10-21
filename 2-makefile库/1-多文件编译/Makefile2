@@ -1,0 +1,21 @@
+CC = gcc
+CFLAGS = -c -Wall -O2
+OBJS = main
+
+$(OBJS):main.o add.o sub.o
+	$(CC) main.o add.o sub.o -o main
+
+$(OBJS).o:main.c
+	$(CC) $(CFLAGS) main.c -o main.o
+
+add.o:add.c
+	$(CC) $(CFLAGS) add.c -o add.o
+
+sub.o:sub.c
+	$(CC) $(CFLAGS) sub.c -o sub.o
+
+.PHONY:
+	clear
+
+clear:
+	rm *.o $(OBJS)
