@@ -1,0 +1,161 @@
+【1】标准IO操作
+ 3）二进制流的形式
+    函数原型：size_t fwrite(const void *ptr, size_t size, size_t nmemb,
+                     FILE *stream);
+	功能：向文件中写数据单元
+	参数：ptr   数据的来源
+	      size  写入的单元数据的大小
+		  nmemb 写入单元数据的个数
+		  stream   流指针（文件）
+	返回值：  失败  <0
+	
+	
+	函数原型：size_t fread(void *ptr, size_t size, size_t nmemb, FILE *stream);
+	功能：从文件中读取数据单元
+	参数：ptr   数据保存的位置
+	      size  读取单元数据的大小
+		  nmemb 读取单元数据的个数
+		  stream   流指针（文件）
+    返回值：  失败  <0
+	
+【2】时间
+ 函数原型： time_t time(time_t *t);
+ 功能：求出1970到程序执行时的秒数
+ 
+ 函数原型： struct tm *localtime(const time_t *timep);
+ 功能：将1970到程序执行时秒数转换为日历格式的时间
+ 
+ 函数原型： int fprintf(FILE *stream, const char *format, ...);
+ 功能:格式化输出
+ 
+【3】系统调用操作
+ 函数原型：int open(const char *pathname, int flags);
+           int open(const char *pathname, int flags, mode_t mode);
+ 功能：打开一个普通或设备文件（设备节点）
+ 参数：pathname   文件名
+       flags      O_RDONLY   以只读的方式打开文件 
+	              O_WRONLY   以只写的方式打开文件
+				  O_RDWR     以读写的方式打开文件
+                  O_APPEND   追加文件的末尾
+                  O_CREAT    创建文件
+				  O_TRUNC    文件存在，清空之前的数据
+				  
+	   O_WRONLY|O_CREAT|O_TRUNC  
+	   
+	   当flags中指定O_CREAT，出现第三个参数
+	   mode       用户对文件执行权限   0664
+	   
+ 返回值：  成功  文件描述符（非负数）
+           失败  -1
+		   
+
+ fopen                 open
+   r                 O_RDONLY
+   r+                O_RDWR
+   w                 O_WRONLY|O_CREAT|O_TRUNC,0664
+   w+                O_RDWR|O_CREAT|O_TRUNC,0664
+   a                 O_WRONLY|O_CREAT|O_APPEND,0664
+   a+                O_RDWR|O_CREAT|O_APPEND,0664
+   
+   
+ 当使用open函数打开一个文件时，系统会自动打开三个IO设备文件，三个设备文件分别对应三个
+ 文件描述符  0， 1 ，2
+ 
+ 函数原型：ssize_t write(int fd, const void *buf, size_t count);
+ 功能：向文件中写入count个字符
+ 参数：fd   文件描述符（open返回值）
+       buf   写入数据的来源
+	   count 写入的字符的个数
+ 返回值：  成功   实际写入的字符的个数
+           失败   -1
+		   
+ 函数原型：ssize_t read(int fd, void *buf, size_t count);
+ 功能：从文件中读取count个字符
+ 参数：fd   文件描述符（open返回值）
+       buf  读取内容保存的位置
+	   count 期望读取的字符个数
+ 返回值： 成功   实际读取的字符的个数
+          失败   -1
+		  
+【4】文件的读写位置定位
+ 函数原型：off_t lseek(int fd, off_t offset, int whence);
+ 功能：定位文件的读写位置
+ 参数：fd  文件描述符（open返回值）
+       offset  偏移量
+	   whence  SEEK_SET  定位到文件的开头
+	           SEEK_CUR  定位到文件的当前的读写位置
+			   SEEK_END  定位到文件的末尾
+ 返回值：   成功   当前文件的读写位置
+            失败   -1
+			
+ 【5】目录操作
+  函数原型： DIR *opendir(const char *name);
+  功能：打开一个目录
+  参数：name  目录的名字
+  返回值：  成功   目录流指针
+            失败   NULL
+
+  函数原型： struct dirent *readdir(DIR *dirp);
+  功能：读取一个目录
+  参数：目录流指针（opendir返回值）
+  返回值：  成功  结构体指针 
+            失败  NULL
+			
+ 【6】文件属性信息
+  函数原型：int stat(const char *path, struct stat *buf);
+  功能：获取文件的属性信息
+  参数：path   文件名
+        buf    
+  返回值：成功  0
+          失败  -1
+		  
+    ino_t     st_ino;     /* inode number */     文件索引号
+    nlink_t   st_nlink;   /* number of hard links */   链接数
+    uid_t     st_uid;     /* user ID of owner */       文件所属的用户ID
+    gid_t     st_gid;     /* group ID of owner */      文件所属的用户组ID
+	off_t     st_size;    /* total size, in bytes */   文件的大小
+            
+			
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+			
+			
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+

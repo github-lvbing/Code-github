@@ -1,0 +1,188 @@
+【1】条件变量
+ 条件变量：异步通信机制
+ 机制：睡眠，唤醒  
+       确定线程执行先后
+	   
+	   【重点】将线程睡眠等待，必须要执行在唤醒之前
+       【重点】在线程睡眠的过程中，经过两次上锁解锁的操作
+	        pthread_mutex_lock(&lock);  申请上锁，锁住线程睡眠操作                                                
+            pthread_cond_wait(&cond, &lock);（1）睡眠线程，自动将互斥锁释放（被其他线程使用），将睡眠线程放到线程列表里等待被唤醒
+			                                （2）当接受唤醒操作时，wait会立即返回，并且再次自动执行上锁操作
+            printf("buf = %s\n", buf);
+            pthread_mutex_unlock(&lock);     
+ 函数原型：int pthread_cond_init(pthread_cond_t *restrict cond,
+              const pthread_condattr_t *restrict attr);
+ 功能：条件变量的初始化
+ 参数：cond   条件变量的标识符
+       attr   条件变量的属性  默认为NULL，执行默认属性
+ 返回值：  成功   0
+           失败   错误码
+
+ 函数原型:int pthread_cond_wait(pthread_cond_t *restrict cond,
+              pthread_mutex_t *restrict mutex);
+ 功能：使线程睡眠阻塞 （必须要执行上锁）
+ 参数：cond   条件变量的标识符
+       mutex  互斥锁的标识符
+ 返回值：  成功   0
+           失败   错误码
+		   
+ 函数原型： int pthread_cond_signal(pthread_cond_t *cond);
+ 功能：唤醒线程
+ 参数：cond   条件变量的标识符
+ 返回值：   成功   0
+            失败   错误码
+			
+ 函数原型：int pthread_cond_destroy(pthread_cond_t *cond);
+ 功能：摧毁条件变量
+ 参数：cond   条件变量的标识符
+ 返回值：  成功  0
+           失败  错误码
+		  
+【2】进程间的通信方式
+ 	传统的进程间通信方式
+	无名管道(pipe)、有名管道(fifo)和信号(signal)
+
+    System V IPC对象
+    共享内存(share memory)、消息队列(message queue)和信号灯(semaphore)
+
+    BSD
+	套接字(socket)
+	
+【3】无名管道
+     无名管道被创建在进程内核空间中（共有），进程通过操作固定的读写端完成通信
+
+ 无名管道的属性
+     1）只能用于具有亲缘关系的进程之间的通信
+     2）半双工的通信模式，具有固定的读端和写端
+     3）管道可以看成是一种【特殊的文件】，对于它的读写可以使用文件IO如read、write函数
+	 4）当向无名管道中写数据时，管道写满，写操作就会阻塞（无名管道的大小为64K）
+	 5）当无名管道中无数据时，执行读操作，读操作阻塞
+	 6）当管道被写满时，写操作会被阻塞，当管道有4K剩余空间时，可以继续写入
+	 7）当把管道的读端关闭时，向管道中写数据，管道破裂    strace ./a.out
+	 8）当管道中有数据时，将写端关闭，读操作可以读取数据
+ 函数原型：int pipe(int pipefd[2]);
+ 功能：创建一个无名管道，通过参数得到两个文件描述符，fd[0]被视为管道的读端，fd[1]被视为管道的写端
+ 参数：pipefd   数组，存放文件描述符
+ 返回值： 成功  0
+          失败  -1
+		  
+【4】有名管道
+     1）有名管道可以使互不相关的两个进程互相通信。
+     2）有名管道可以通过路径名来指出，并且在文件系统中可见
+     3）进程通过文件IO来操作有名管道
+     4）有名管道遵循先进先出规则
+     5）不支持如lseek() 操作 ，写入管道中的数据，本质上是写到了内存里面
+	 
+	 对于有名管道的操作可把其视为一个普通文件直接对其进行文件IO操作 
+     使用：先创建，后打开
+ 函数原型： int mkfifo(const char *pathname, mode_t mode);
+ 功能：创建有名管道（特殊文件）
+ 参数：pathname   管道的名字
+       mode       mode &  ~umask
+ 返回值：成功  0
+         失败  -1
+		 
+【5】信号
+ 信号是在软件层次上对中断机制的一种模拟，是一种异步通信方式
+
+ 信号可以直接进行用户空间进程和内核进程之间的交互，
+ 内核进程也可以利用它来通知用户空间进程发生了哪些系统事件		 
+
+ 如果该进程当前并未处于执行态，则该信号就由内核保存起来，直到该进程恢复执行再传递给它
+ 
+ （1）信号的类型:
+    2) SIGINT   默认操作为终止一个进程	   ctrl  +  c
+	3) SIGQUIT  默认操作为终止一个进程     ctrl  +  \
+	9) SIGKILL  默认操作为终止一个进程
+    10) SIGUSR1  用户自定义信号，没有默认操作
+    12) SIGUSR2
+	14) SIGALRM  时钟信号
+	17) SIGCHLD  子进程状态改变，父进程获得此信号
+	19) SIGSTOP	默认操作为停止一个进程
+	20) SIGTSTP 默认操作为停止一个进程     ctrl  +  z
+	
+（2）用户进程对信号的响应方式：
+     忽略信号：对信号不做任何处理，但是有两个信号不能忽略：即SIGKILL及SIGSTOP。
+     捕捉信号：定义信号处理函数，当信号发生时，执行相应的处理函数。
+     执行缺省操作：Linux对每种信号都规定了默认操作 
+	 
+ 函数原型：int kill(pid_t pid, int sig);
+ 功能：发送信号给任意一个进程或进程组
+ 参数： pid   >0   指定进程号发送信号  
+        pid   =0   向调用进程所在的进程组中的每一个进程发送信号
+		pid   =-1  向linux下运行所有进程发送一个信号（init进程除外）
+		pid   <-1  向进程组ID等于-pid下的每一个进程发送信号
+		
+		sig   信号的类型
+ 返回值：成功  0
+         失败  -1
+		 
+ 函数原型：int raise(int sig);
+ 功能：向调用进程发送一个信号
+ 参数：sig   信号的类型
+ 
+ 函数原型：  typedef void (*sighandler_t)(int);   《====》  typedef void (*)(int) sighandler_t
+
+             sighandler_t signal(int signum, sighandler_t handler);
+			 
+			 void (*signal(int signum, void(*handler)(int)))(int)
+			 
+ 功能：捕捉信号（忽略，可以执行自定义函数，执行默认操作）
+ 参数：signum   信号的类型
+       handler  自定义函数     SIG_IGN   捕捉此信号，执行忽略
+	                           SIG_DFL   捕捉此信号，执行该信号的默认操作
+							   自定义处理
+ 返回值：失败  SIG_ERR
+							   
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+	
+	
+
+		  
+ 
+	  
+ 
+		   
+		   
+		   
+		   
+		   
+		   
+		   
+		   
+		   
+		   
+		   
+		   
+		   
+		   
+		   
+		   
+		   
+		   
+		   
+		   
+			
+			
+
+		   

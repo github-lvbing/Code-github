@@ -1,0 +1,245 @@
+【1】静态库和动态库
+ linux下的库有两种：静态库和共享库（动态库）。二者的不同点在于代码被载入的时刻不同。 
+ 静态库在程序编译时会被连接到目标代码中，程序运行时将不再需要该静态库，因此体积较大。
+ 动态库在程序编译时并不会被连接到目标代码中，而是在程序运行是才被载入，因此在程序运行时还需要动态库存在，因此代码体积较小。 
+ 
+ 静态库：
+ 
+ gcc -c func.c -o func.o   将封装函数的所在文件编译生成可重定向文件
+ ar crs libfun.a fun.o     制作静态库
+        lib ---指明库文件
+		fun ---库的名字
+		.a  ---静态库
+ gcc main.c -o main -L. -lfun  
+        -L  指定库所在的路径
+		-l  指定库的名字
+		
+ 动态库：
+ 
+ gcc -fPIC -c func.c -o func.o   将封装函数的所在文件编译生成可重定向文件
+     -fPIC 生成与位置无关的代码 （生成的动态库在内存中自动寻找一块合适的内存区域，等待被链接执行）   
+ gcc -shared func.o -o libfunc.so
+         lib ---指明库文件
+		 func ---库的名字
+		 .so  ---动态库 
+ gcc main.c -o main -L. -lfunc 
+         -L  指定库所在的路径
+		 -l  指定库的名字 
+ 
+ 动态库的生效：
+     1）将生成的动态库文件复制到/lib 
+        失效：将/lib下的动态库文件删除	 
+	 2）shell配置环境   指明生成的动态库所在的路径：export LD_LIBRARY_PATH=/home/linux/16111/day_3/dynamic/
+	    失效：  路径赋值为NULL   export LD_LIBRARY_PATH=
+     3）/etc/ld.so.conf.d/添加配置文件(.conf文件，sudo touch)，指明动态库的路径
+	    刷新配置文件：sudo ldconfig
+		失效：  将配置文件从/etc/ld.so.conf.d/删除，再次刷新配置文件  sudo ldconfig
+		
+【2】进程
+ 进程：进程是独立的可调度的任务（进程与进程之间没有任何联系）
+ 
+ 进程和程序的区别
+ 程序是静态的，它是一些保存在磁盘上的指令的有序集合，没有任何执行的概念
+ 进程是一个动态的概念，它是程序执行的过程，包括创建、调度和消亡
+ 
+ 1）创建：当进程创建的时候（程序执行的时候），内核为每一个进程创建独立的虚拟地址(内存)空间（4G,0~3G属于用户空间，3~4G属于内核空间）
+          在逻辑上存在，为变量分配空间，建立内核记账数据结构（task struct），记录进程的属性信息（进程ID，进程组ID，进程所属的用户，
+		  进程的状态。。。）
+		  
+ 2）调度：CPU的调度 （上下文切换）
+          当进程优先级相等，（Linux默认的调度策略为SCEHD_RR）,循环时间共享
+		  
+		  上文：保存进程中断时的状态
+		  下文：恢复上一次中断时的状态
+		  切换：cpu控制权切换
+ 3）退出：释放进程的有限资源
+ 
+ 
+ 虚拟内存空间：
+     映射的本质：将物理地址转为为虚拟地址
+     对物理内存的映射，将一部分物理内存映射成为虚拟内存空间(4G)，虚拟内存空间中的一部分出自于物理内存（操作部分虚拟内存相当于
+	 操作实际内存），一部分出自于外部存储交换区
+	 
+ 虚拟内存规划：
+     内核将虚拟内存空间划分为小型的，相同大小的“页”单元（4K），内核为每一个进程维护一张页映射表（页映射表由页表条目组成），
+	 每一个页表条目对应虚拟地址空间中的每一页，记录虚拟地址空间的页出自于什么地方
+	 页映射表主要记录两个信息：
+	 1）记录某一页出自于物理内存，如果页出自于物理内存，记录所对应物理内存的地址
+	 2）记录某一页出自于外部存储
+	 
+	 
+【3】进程的内存布局（组成部分）
+     1）程序文本段      保存程序代码
+     2）数据段          保存程序中全局变量
+	 3）堆区            进程额外申请的空间
+	 4）栈区            保存程序中的局部变量，以及函数的调用、返回
+ 
+ 
+【4】进程的种类
+     交互进程：该类进程是由shell控制和运行的。交互进程既可以在前台运行，也可以在后台运行。
+	           在前台运行，受终端的控制
+
+     批处理进程：该类进程不属于某个终端，它被提交到一个队列中以便顺序执行。
+	           该进程不受终端控制，不与用户进行交互，在后台运行，称之为进程的集合，按顺序处理其他进程
+
+     守护进程：该类进程在后台运行。它一般在Linux启动时开始执行，系统关闭时才结束
+	           
+【5】静态查看进程的属性      ps  axj 
+ PPID       PID           PGID            SID          TTY      TPGID  STAT         UID           TIME COMMAND
+父进程ID   进程ID       进程组ID        会话组ID      终端           进程的状态   进程所属的用户     进程的名字
+
+ 0号进程，守护进程，属于内核，统筹安排其他进程
+ 1号进程，守护进程，被内核控制
+ 
+【6】进程的状态  man  ps
+
+     1）睡眠态  ----可中断
+	            ----不可中断
+	 2）运行态  
+	 3）停止态
+	 4）僵尸态
+	 5）死亡态
+       D    uninterruptible sleep (usually IO)   不可中断睡眠态（等待态）
+       R    running or runnable (on run queue)   运行态
+       S    interruptible sleep (waiting for an event to complete)  可中断睡眠态
+       T    stopped, either by a job control signal or because it is being traced.   停止态
+       X    dead (should never be seen)    死亡态
+       Z    defunct ("zombie") process, terminated but not reaped by its parent.     僵尸态
+
+       For BSD formats and when the stat keyword is used, additional characters may be displayed:
+       <    high-priority (not nice to other users)   高优先级
+       N    low-priority (nice to other users)        低优先级
+       s    is a session leader                       会话组组长
+       l    is multi-threaded (using CLONE_THREAD, like NPTL pthreads do)   线程
+       +    is in the foreground process group.       在前台运行
+	   
+	进程间的状态转换：
+	
+	ctrl  +  z   停止一个进程
+	ctrl  +  c   终止一个进程
+	ctrl  +  \   终止一个进程
+	
+	./a.out &    将进程放到后台运行
+	bg           将一个停止的进程放到后台运行
+	fg           将进程从后台放到前台执行
+
+【7】动态查看进程的状态  top
+  翻页：  shift  +  >
+          shift  +  <  
+		  
+		  3秒记录一次（ps axj）
+  PR                 NI       
+  进程的优先级      nice值（-20  ~  0）     nice值越小优先级越高
+  
+  改变进程的nice值（优先级）
+  sudo renice -n -10  PID   改变当前运行进程的优先级
+  sudo nice -n -10 ./a.out  改变将要运行的进程的优先级
+ 
+  VIRT    
+  进程所使用的虚拟内存大小
+ 
+  RES  
+  进程所使用物理内存的大小
+  
+  %CPU 
+  进程的CPU占有率总和
+  
+  TIME+
+  进程被CPU执行的总时间
+  
+ 【8】进程的创建
+  函数原型： pid_t fork(void);
+  功能：完成对父进程的精确复制，创建子进程
+  返回值：   成功    父进程   子进程的ID号
+                     子进程    0
+			 失败    父进程   -1
+			         子进程没有被创建
+					 
+  pid  = fork（）   
+  子进程在执行fork之后被创建，在变量pid接受参数之前创建完成
+  在父进程的代码中，变量pid接受到返回值为子进程的ID号（>0）
+  在子进程的代码中，变量pid接受到返回值为0
+   
+  
+
+ 【9】进程的ID
+  函数原型：     pid_t getpid(void);
+                 pid_t getppid(void);
+  功能：getpid   返回值调用进程的ID号
+        getppid  返回调用进程的父进程的ID号
+		
+ 【10】孤儿进程
+  当父进程退出，子进程不退出，此时子进程成为孤儿进程（父进程变成init进程）
+  
+ 【11】僵尸进程
+  当父进程不退出，子进程退出，父进程不回收子进程的资源，导致子进程成为僵尸进程
+  
+  解决僵尸进程的方式：
+  1）父进程退出，父进程一但退出，回收子进程的资源
+  2） pid_t wait(int *status);
+      pid_t waitpid(pid_t pid, int *status, int options);
+
+ 【12】等待函数
+    pid_t wait(int *status);
+	返回值：成功   子进程状态发生改变，返回子进程的ID号
+    pid_t waitpid(pid_t pid, int *status, int options);
+
+    功能：等待子进程的状态发生改变   1.子进程退出
+	                                 2.子进程收到信号，停止
+									 3.子进程收到信号，恢复之前的状态
+									 
+		  如果是子进程退出，父进程使用wait，waitpid等待子进程的状态，回收子进程的资源，，使子进程成为死亡态
+		  
+    参数：   1）wait    status   默认NULL
+	
+	         2）waitpid   pid    < -1   等待组ID等于参数pid的绝对值下的所有子进程状态发生改变
+			                   -1    等待任何一个子进程
+							   0     等待进程组ID号等于调用进程下的所有子进程
+							   >0    等待指定ID号的子进程
+			            options    0        作用等同于wait（NULL）	
+                                 WNOHANG	不阻塞等待，立即返回	
+    返回值：    成功     第三参数为0        子进程的ID号						 
+                         第三参数为WNOHANG  0
+				失败     -1
+  
+  
+  
+  
+  
+  
+  %MEM    TIME+  COMMAND 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+ 
+ 
+ 
+		
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
+	 
