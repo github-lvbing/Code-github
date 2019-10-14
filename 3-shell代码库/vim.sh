@@ -1,4 +1,6 @@
 
+# git clone https://github.com/vim/vim.git
+
 DISCLEAN_OPEN=FALSE
 PROMPT='>>>>>>>>>>>'
 USER=$(users)
