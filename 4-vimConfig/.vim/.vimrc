@@ -131,7 +131,6 @@ endfunc
 
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""实用设置
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 set autoread         " 设置当文件被改动时自动载入
 set background=dark
 "set background=light
@@ -399,7 +398,7 @@ let g:ycm_complete_in_comments = 1                          "在注释输入中�
 let g:ycm_complete_in_strings = 1                           "在字符串输入中也能补全
 let g:ycm_collect_identifiers_from_comments_and_strings = 1 "注释和字符串中的文字也会被收入补全
 let g:ycm_show_diagnostics_ui = 0                           "禁用语法检查
-inoremap <expr> <CR> pumvisible() ? "\<C-y>" :  "\<CR>" |             "回车即选中当前项
-nnoremap <c-j> :YcmCompleter GoToDefinitionElseDeclaration<CR>|     "跳转到定义处
+inoremap <expr> <CR> pumvisible() ? "\<C-y>" :  "\<CR>"        "回车即选中当前项
+nnoremap <c-j> :YcmCompleter GoToDefinitionElseDeclaration<CR>   "跳转到定义处
 let g:ycm_min_num_of_chars_for_completion=2                         "从第2个键入字符就开始罗列匹配项
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""

@@ -54,7 +54,7 @@ git config --global color.diff auto
 git config --global color.interactive auto
 
 echo "$PROMPT git config cmd alias: ..."
-git config --global alias.lg "log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit" 
+git config --global alias.lg "log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
 git config --global alias.st "status"
 
 echo "$PROMPT git change data time format: ..."
@@ -65,8 +65,4 @@ echo "$PROMPT show git config list:"
 git config --list
 # git config --global --list
 # git config --system --list
-
-
-
-
 
