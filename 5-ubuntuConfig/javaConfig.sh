@@ -1,11 +1,12 @@
 
 PROMPT='>>>>>>>>>>>'
+USER=$(users)
 # https://www.oracle.com/technetwork/cn/java/javase/downloads/jdk8-downloads-2133151-zhs.html
 # jdk-8u181-linux-x64.tar.gz
 
 PATH_TAR_JDK=/home/lvbing
 FILE_NAME_JDK=jdk-8u181-linux-x64.tar.gz
-FILE_USER_BASHRC=/home/lvbing/.bashrc
+FILE_USER_BASHRC=/home/$USER/.bashrc
 FILE_ROOT_BASHRC=/root/.bashrc
 
 echo "$PROMPT back file:$FILE_USER_BASHRC --> $FILE_USER_BASHRC.back"
@@ -41,13 +42,15 @@ TEMP_STRING_CONFIG=$STRING_CONFIG
 TEMP_FILE_CONFIG=$FILE_USER_BASHRC
 PARAM=$(cat $TEMP_FILE_CONFIG| grep "$TEMP_STRING_REFERENCE")
 if [ "$PARAM" != "" ]; then
-  echo "----------------------$FILE_CONFIG----------------------------"
+  echo "----------------------$TEMP_FILE_CONFIG----------------------------"
   cat $TEMP_FILE_CONFIG
+  echo "----------------------$TEMP_FILE_CONFIG----------------------------"
   LOG_OUT=${LOG_OUT}"\n$PROMPT already config <$TEMP_FILE_CONFIG> !"
 else
   echo $TEMP_STRING_CONFIG >> $TEMP_FILE_CONFIG
-  echo "----------------------$FILE_CONFIG----------------------------"
+  echo "----------------------$TEMP_FILE_CONFIG----------------------------"
   cat $TEMP_FILE_CONFIG
+  echo "----------------------$TEMP_FILE_CONFIG----------------------------"
   LOG_OUT=${LOG_OUT}"\n$PROMPT fist config,please < source $TEMP_FILE_CONFIG >!"
 fi
 
@@ -56,13 +59,15 @@ TEMP_STRING_CONFIG=$STRING_CONFIG
 TEMP_FILE_CONFIG=$FILE_ROOT_BASHRC
 PARAM=$(cat $TEMP_FILE_CONFIG| grep "$TEMP_STRING_REFERENCE")
 if [ "$PARAM" != "" ]; then
-  echo "----------------------$FILE_CONFIG----------------------------"
+  echo "----------------------$TEMP_FILE_CONFIG----------------------------"
   cat $TEMP_FILE_CONFIG
+  echo "----------------------$TEMP_FILE_CONFIG----------------------------"
   LOG_OUT=${LOG_OUT}"\n$PROMPT already config <$TEMP_FILE_CONFIG> !"
 else
   echo $TEMP_STRING_CONFIG >> $TEMP_FILE_CONFIG
-  echo "----------------------$FILE_CONFIG----------------------------"
+  echo "----------------------$TEMP_FILE_CONFIG----------------------------"
   cat $TEMP_FILE_CONFIG
+  echo "----------------------$TEMP_FILE_CONFIG----------------------------"
   LOG_OUT=${LOG_OUT}"\n$PROMPT fist config,please < source $TEMP_FILE_CONFIG >!"
 fi
 

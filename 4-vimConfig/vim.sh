@@ -44,6 +44,11 @@ sudo apt-get install libncurses5-dev \
   liblua5.1-dev  \
   libperl-dev git
 
+cho "$PROMPT back file:$FILE_USER_BASHRC --> $FILE_USER_BASHRC.back"
+sudo cp $FILE_USER_BASHRC $FILE_USER_BASHRC.back
+
+echo "$PROMPT back file:$FILE_ROOT_BASHRC --> $FILE_ROOT_BASHRC.back"
+sudo cp $FILE_ROOT_BASHRC $FILE_ROOT_BASHRC.back
 
 echo "$PROMPT create install dir: ..."
 mkdir -p $DIR_INSTALL
