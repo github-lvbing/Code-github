@@ -1,4 +1,5 @@
 
+
 DISCLEAN_OPEN=FALSE
 PROMPT='>>>>>>>>>>>'
 USER=$(users)
